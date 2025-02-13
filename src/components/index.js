@@ -5,6 +5,7 @@ import LoadingComponent from "./LoadingComponent";
 import PageHeaderContainer from "./PageHeaderContainer";
 import EmployeeRows from "./Employees";
 import EmployeeFilters from "./EmployeeFilters";
+import CertificationDashboard from "./CertificationDashboard";
 
 export {
   Nav,
@@ -14,4 +15,5 @@ export {
   PageHeaderContainer,
   EmployeeRows,
   EmployeeFilters,
+  CertificationDashboard,
 };

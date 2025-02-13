@@ -8,10 +8,12 @@ import {
   PageHeaderContainer,
   EmployeeRows,
   EmployeeFilters,
+  CertificationDashboard,
 } from "../components";
 import { Delete } from "@mui/icons-material";
 
 import { certifications } from "../constants/certifications";
+import { checkExpired } from "../utils/dates";
 
 async function uploadFile(file) {
   const formData = new FormData();
@@ -39,12 +41,105 @@ async function deleteData(setEmployees) {
   }
 }
 
+function formatDates(employees) {
+  const today = new Date();
+  const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1));
+  return employees.map((employee) => {
+    const formattedEmployee = { ...employee };
+    Object.keys(formattedEmployee).forEach((key) => {
+      if (formattedEmployee[key] && formattedEmployee[key] === "Invalid Date") {
+        formattedEmployee[key] = new Date(oneMonthAgo);
+      }
+    });
+
+    return formattedEmployee;
+  });
+}
+
+function saveExpiryStatus(certification, status, all) {
+  certification.count++;
+  all.count++;
+
+  console.log(certification);
+
+  if (status === "Valid") {
+    certification.valid++;
+    all.valid++;
+  }
+  if (status === "Expired") {
+    certification.expired++;
+    all.expired++;
+  }
+  if (status === "Expiring") {
+    certification.almostExpired++;
+    all.almostExpired++;
+  }
+}
+
+function createFilteredCertifications(employees) {
+  const certificationStructure = {
+    count: 0,
+    valid: 0,
+    expired: 0,
+    almostExpired: 0,
+  };
+  const all = { ...certificationStructure },
+    fire = { ...certificationStructure },
+    firstAid = { ...certificationStructure },
+    forklift = { ...certificationStructure },
+    mobileCrane = { ...certificationStructure },
+    overheadCrane = { ...certificationStructure },
+    siteRep = { ...certificationStructure },
+    tractor = { ...certificationStructure },
+    workingHeights = { ...certificationStructure };
+
+  employees.forEach((employee) => {
+    if (employee.fire)
+      saveExpiryStatus(fire, checkExpired([employee.fire]), all);
+    if (employee.firstAid)
+      saveExpiryStatus(firstAid, checkExpired([employee.firstAid]), all);
+    if (employee.forklift)
+      saveExpiryStatus(forklift, checkExpired([employee.forkLift]), all);
+    if (employee.mobileCrane)
+      saveExpiryStatus(mobileCrane, checkExpired([employee.mobileCrane]), all);
+    if (employee.overheadCrane)
+      saveExpiryStatus(
+        overheadCrane,
+        checkExpired([employee.overheadCrane]),
+        all
+      );
+    if (employee.siteRep)
+      saveExpiryStatus(siteRep, checkExpired([employee.siteRep]), all);
+    if (employee.tractor)
+      saveExpiryStatus(tractor, checkExpired([employee.tractor]), all);
+    if (employee.workingHeights)
+      saveExpiryStatus(
+        workingHeights,
+        checkExpired([employee.workingHeights]),
+        all
+      );
+  });
+
+  return {
+    All: all,
+    fire,
+    firstAid,
+    forklift,
+    mobileCrane,
+    overheadCrane,
+    siteRep,
+    tractor,
+    workingHeights,
+  };
+}
+
 const Certification = () => {
   const [loading, setLoading] = useState(false);
   const [fileSelected, setFileSelected] = useState(null);
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState("");
+  const [filteredCertifications, setFilteredCertifications] = useState();
 
   // Filters
   const [certificationFilter, setCertificationFilter] = useState({
@@ -56,7 +151,7 @@ const Certification = () => {
   useEffect(() => {
     setLoading(true);
     axios.get("/api/employees").then((response) => {
-      setEmployees(Object.values(response.data));
+      setEmployees(formatDates(Object.values(response.data)));
       setLoading(false);
     });
   }, []);
@@ -66,7 +161,7 @@ const Certification = () => {
       uploadFile(fileSelected).then((uploaded) => {
         if (uploaded < 299) {
           axios.get("/api/employees").then((response) => {
-            setEmployees(Object.values(response.data));
+            setEmployees(formatDates(Object.values(response.data)));
           });
         }
       });
@@ -77,6 +172,7 @@ const Certification = () => {
     if (employees.length) {
       const departments = employees.map((employee) => employee.department);
       setDepartments([...new Set(departments)]);
+      setFilteredCertifications(createFilteredCertifications(employees));
       return setFilteredEmployees(employees);
     }
 
@@ -97,6 +193,7 @@ const Certification = () => {
           (employee) => employee.department === departmentFilter
         );
 
+      setFilteredCertifications(createFilteredCertifications(filterEmployees));
       setFilteredEmployees(filterEmployees);
     }
   }, [certificationFilter, departmentFilter]);
@@ -134,6 +231,10 @@ const Certification = () => {
         departmentFilter={departmentFilter}
         setDepartmentFilter={setDepartmentFilter}
         employees={employees}
+      />
+      <CertificationDashboard
+        certifications={filteredCertifications}
+        certificationFilter={certificationFilter}
       />
       <EmployeeRows
         employees={filteredEmployees}
