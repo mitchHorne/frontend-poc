@@ -2,6 +2,7 @@ import { NavLink } from "react-router";
 import styled from "styled-components";
 
 import theme from "../constants/theme";
+import Logo from "/public/logo.jpg";
 
 const StyledNav = styled.nav`
   background: ${theme.colors.backgroundNavColor};
@@ -9,6 +10,7 @@ const StyledNav = styled.nav`
   left: 0;
   margin: 0;
   padding: 0 10px;
+  padding-left: 0;
   position: fixed;
   top: 0;
   width: 100%;
@@ -16,6 +18,8 @@ const StyledNav = styled.nav`
 `;
 
 const StyledNavLink = styled(NavLink)`
+  display: flex;
+  align-items: center;
   padding: 10px;
   text-decoration: none;
   color: black;
@@ -30,6 +34,7 @@ const StyledNavLink = styled(NavLink)`
 export default function Nav() {
   return (
     <StyledNav>
+      <img src={Logo} style={{ width: "100px" }} />
       <StyledNavLink
         className={({ isActive }) => (isActive ? "active" : "")}
         to="/"

@@ -128,6 +128,7 @@ function selectCertificateColor(certDate, today, todayPlusThreeMonths) {
 }
 
 const EmployeeRows = ({ employees, selectedEmployee, setSelectedEmployee }) => {
+  if (!employees.length) return null;
   const [sort, setSort] = useState({ value: "surname", direction: "asc" });
 
   const chooseSort = (value) => {
@@ -141,7 +142,7 @@ const EmployeeRows = ({ employees, selectedEmployee, setSelectedEmployee }) => {
     }
   };
 
-  const sortedEmployees = employees.sort((a, b) => {
+  employees.sort((a, b) => {
     if (sort.value === "initials") {
       if (sort.direction === "asc") {
         return a.initials.localeCompare(b.initials);
