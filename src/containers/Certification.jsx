@@ -9,8 +9,35 @@ import {
   EmployeeRows,
   EmployeeFilters,
 } from "../components";
+import { Delete } from "@mui/icons-material";
 
 import { certifications } from "../constants/certifications";
+
+async function uploadFile(file) {
+  const formData = new FormData();
+  formData.append("data_file", file);
+
+  try {
+    const response = await axios.post("/api/upload/employees", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.status;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function deleteData(setEmployees) {
+  try {
+    const response = await axios.delete("/api/employees");
+    if (response.data === "OK") setEmployees([]);
+  } catch (error) {
+    return error;
+  }
+}
 
 const Certification = () => {
   const [loading, setLoading] = useState(false);
@@ -36,6 +63,13 @@ const Certification = () => {
 
   useEffect(() => {
     if (fileSelected) {
+      uploadFile(fileSelected).then((uploaded) => {
+        if (uploaded < 299) {
+          axios.get("/api/employees").then((response) => {
+            setEmployees(Object.values(response.data));
+          });
+        }
+      });
     }
   }, [fileSelected]);
 
@@ -43,8 +77,10 @@ const Certification = () => {
     if (employees.length) {
       const departments = employees.map((employee) => employee.department);
       setDepartments([...new Set(departments)]);
-      setFilteredEmployees(employees);
+      return setFilteredEmployees(employees);
     }
+
+    setFilteredEmployees([]);
   }, [employees]);
 
   useEffect(() => {
@@ -80,6 +116,13 @@ const Certification = () => {
           <UploadInput
             className="my-anchor-element"
             handleFileUpload={setFileSelected}
+          />
+        </a>
+        <a data-tooltip-id="my-tooltip" data-tooltip-content="Clear Data">
+          <Delete
+            className="my-anchor-element"
+            fontSize="large"
+            onClick={() => deleteData(setEmployees)}
           />
         </a>
       </PageHeaderContainer>
