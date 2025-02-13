@@ -32,15 +32,6 @@ async function uploadFile(file) {
   }
 }
 
-async function deleteData(setEmployees) {
-  try {
-    const response = await axios.delete("/api/employees");
-    if (response.data === "OK") setEmployees([]);
-  } catch (error) {
-    return error;
-  }
-}
-
 function formatDates(employees) {
   const today = new Date();
   const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1));
@@ -213,13 +204,6 @@ const Certification = () => {
           <UploadInput
             className="my-anchor-element"
             handleFileUpload={setFileSelected}
-          />
-        </a>
-        <a data-tooltip-id="my-tooltip" data-tooltip-content="Clear Data">
-          <Delete
-            className="my-anchor-element"
-            fontSize="large"
-            onClick={() => deleteData(setEmployees)}
           />
         </a>
       </PageHeaderContainer>
