@@ -15,6 +15,10 @@ const StyledNav = styled.nav`
   top: 0;
   width: 100%;
   z-index: 100;
+
+  div {
+    display: flex;
+  }
 `;
 
 const StyledNavLink = styled(NavLink)`
@@ -31,16 +35,31 @@ const StyledNavLink = styled(NavLink)`
   }
 `;
 
+const Image = styled.img`
+  height: 44px;
+  left: calc(50% - 50px);
+  position: absolute;
+  width: 100px;
+`;
+
 export default function Nav() {
   return (
     <StyledNav>
-      <img src={Logo} style={{ width: "100px" }} />
-      <StyledNavLink
-        className={({ isActive }) => (isActive ? "active" : "")}
-        to="/"
-      >
-        Certifications
-      </StyledNavLink>
+      <div>
+        <StyledNavLink
+          className={({ isActive }) => (isActive ? "active" : "")}
+          to="/"
+        >
+          Certifications
+        </StyledNavLink>
+        <StyledNavLink
+          className={({ isActive }) => (isActive ? "active" : "")}
+          to="/vehicles"
+        >
+          Vehicles
+        </StyledNavLink>
+      </div>
+      <Image src={Logo} />
     </StyledNav>
   );
 }

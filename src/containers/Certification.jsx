@@ -197,15 +197,17 @@ const Certification = () => {
       <PageHeaderContainer>
         <h1 className="my-anchor-element">Employee certifications</h1>
 
-        <a
-          data-tooltip-id="my-tooltip"
-          data-tooltip-content="Upload employee file"
-        >
-          <UploadInput
-            className="my-anchor-element"
-            handleFileUpload={setFileSelected}
-          />
-        </a>
+        {employees.length === 0 && (
+          <a
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content="Upload employee file"
+          >
+            <UploadInput
+              className="my-anchor-element"
+              handleFileUpload={setFileSelected}
+            />
+          </a>
+        )}
       </PageHeaderContainer>
       <EmployeeFilters
         certifications={certifications}
