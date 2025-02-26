@@ -1,17 +1,13 @@
-export function checkExpired(certifications) {
-  const today = new Date();
-  const todayPlusThreeMonths = new Date(
-    new Date(today).setMonth(today.getMonth() + 3)
-  );
+import moment from "moment";
 
-  const almostExpiry = certifications.some((cert) => {
-    if (!cert) return false;
-    return new Date(cert) < todayPlusThreeMonths;
-  });
-  const expired = certifications.some((cert) => {
-    if (!cert) return false;
-    return new Date(cert) < today;
-  });
+function getDisplayDateAndExpiredStatus(expiry) {
+  const oneMonthAgo = moment().subtract(1, "months");
+  const expiryDate = moment(expiry);
 
-  return expired ? "Expired" : almostExpiry ? "Expiring" : "Valid";
+  const expired = expiryDate.isBefore(oneMonthAgo);
+  const displayDate = moment(expiryDate).format("DD/MM/YYYY");
+
+  return { displayDate, expired };
 }
+
+export { getDisplayDateAndExpiredStatus };

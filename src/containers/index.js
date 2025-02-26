@@ -1,5 +1,5 @@
-import Certification from "./Certification";
+import StatutoryTraining from "./StatutoryTraining";
 import Vehicles from "./Vehicles";
 import NotFound from "./NotFound";
 
-export { Certification, Vehicles, NotFound };
+export { StatutoryTraining, Vehicles, NotFound };

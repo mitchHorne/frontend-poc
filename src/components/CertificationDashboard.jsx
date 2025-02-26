@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import {
   Error,
-  Warning,
   CheckCircle,
   Emergency,
   PrecisionManufacturing,
@@ -12,66 +11,97 @@ import {
   Factory,
   Paragliding,
 } from "@mui/icons-material";
+import theme from "../constants/theme";
 
 const Container = styled.div`
   display: flex;
   justify-content: space-between;
   margin: 2rem 0;
-  margin-left: 5vw;
-  width: 90vw;
+  margin-left: 15vw;
+  width: 70vw;
 `;
 
 const DataContainer = styled.div`
   align-items: center;
-  background: #eee;
+  background: ${(props) => (props.active ? theme.colors.accentColor : "#eee")};
   border-radius: 20px;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   font-size: 3rem;
   justify-content: center;
   padding: 2rem 0;
   width: 20vw;
+
+  ${(props) =>
+    props.active &&
+    `
+      svg{
+        color: white;
+      }
+
+      color: white;
+      box-shadow: 0 0 15px ${theme.colors.accentColor};
+      text-shadow: 0 0 10px white;
+    `}
 `;
 
-const CertificationDashboard = ({ certifications, certificationFilter }) => {
-  if (!certifications) return null;
-  const { value: certFilter } = certificationFilter;
+const displayFilterIcon = (filter) => {
+  switch (filter) {
+    case "all":
+      return <Emergency sx={{ color: "Blue", fontSize: 60 }} />;
+    case "fire":
+      return <LocalFireDepartment sx={{ color: "Blue", fontSize: 60 }} />;
+    case "firstAid":
+      return <LocalHospital sx={{ color: "Blue", fontSize: 60 }} />;
+    case "forklift":
+      return <DeliveryDining sx={{ color: "Blue", fontSize: 60 }} />;
+    case "mobileCrane":
+      return <PrecisionManufacturing sx={{ color: "Blue", fontSize: 60 }} />;
+    case "overheadCrane":
+      return <PrecisionManufacturing sx={{ color: "Blue", fontSize: 60 }} />;
+    case "siteRep":
+      return <Factory sx={{ color: "Blue", fontSize: 60 }} />;
+    case "tractor":
+      return <Agriculture sx={{ color: "Blue", fontSize: 60 }} />;
+    case "workingHeights":
+      return <Paragliding sx={{ color: "Blue", fontSize: 60 }} />;
+    default:
+      return null;
+  }
+};
+
+const CertificationDashboard = ({
+  selectedTrainingFilter,
+  setStatusFilter,
+  statutoryTrainingDashboard,
+  statusFilter,
+}) => {
+  if (!statutoryTrainingDashboard) return null;
+  const { value: trainingFilter } = selectedTrainingFilter;
 
   return (
     <Container>
-      <DataContainer>
-        {certFilter === "All" ? (
-          <Emergency sx={{ color: "Blue", fontSize: 60 }} />
-        ) : certFilter === "fire" ? (
-          <LocalFireDepartment sx={{ color: "Blue", fontSize: 60 }} />
-        ) : certFilter === "firstAid" ? (
-          <LocalHospital sx={{ color: "Blue", fontSize: 60 }} />
-        ) : certFilter === "forklift" ? (
-          <DeliveryDining sx={{ color: "Blue", fontSize: 60 }} />
-        ) : certFilter === "mobileCrane" ? (
-          <PrecisionManufacturing sx={{ color: "Blue", fontSize: 60 }} />
-        ) : certFilter === "overheadCrane" ? (
-          <PrecisionManufacturing sx={{ color: "Blue", fontSize: 60 }} />
-        ) : certFilter === "siteRep" ? (
-          <Factory sx={{ color: "Blue", fontSize: 60 }} />
-        ) : certFilter === "tractor" ? (
-          <Agriculture sx={{ color: "Blue", fontSize: 60 }} />
-        ) : (
-          <Paragliding sx={{ color: "Blue", fontSize: 60 }} />
-        )}
-        {certifications[certFilter].count}
+      <DataContainer
+        active={statusFilter === "all"}
+        onClick={() => setStatusFilter("all")}
+      >
+        {displayFilterIcon(trainingFilter)}
+        {statutoryTrainingDashboard[trainingFilter].count}
       </DataContainer>
-      <DataContainer>
+      <DataContainer
+        active={statusFilter === "valid"}
+        onClick={() => setStatusFilter("valid")}
+      >
         <CheckCircle sx={{ color: "green", fontSize: 60 }} />
-        {certifications[certFilter].valid}
+        {statutoryTrainingDashboard[trainingFilter].valid}
       </DataContainer>
-      <DataContainer>
-        <Warning sx={{ color: "#F0D500", fontSize: 60 }} />
-        {certifications[certFilter].almostExpired}
-      </DataContainer>
-      <DataContainer>
+      <DataContainer
+        active={statusFilter === "expired"}
+        onClick={() => setStatusFilter("expired")}
+      >
         <Error sx={{ color: "#F32013", fontSize: 60 }} />
-        {certifications[certFilter].expired}
+        {statutoryTrainingDashboard[trainingFilter].expired}
       </DataContainer>
     </Container>
   );

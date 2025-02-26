@@ -1,4 +1,4 @@
-export const certifications = [
+const statutoryTrainingCategories = [
   { value: "fire", text: "Fire" },
   { value: "firstAid", text: "First Aid" },
   { value: "forklift", text: "Forklift" },
@@ -8,3 +8,5 @@ export const certifications = [
   { value: "tractor", text: "Tractor" },
   { value: "workingHeights", text: "Working@Heights" },
 ];
+
+export { statutoryTrainingCategories };

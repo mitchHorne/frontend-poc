@@ -3,7 +3,11 @@ import theme from "../constants/theme";
 
 const FilterContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  margin: 0 auto;
+  margin-bottom: 1rem;
+  width: 80vw;
 
   button:first-child {
     border-radius: 10px 0 0 10px;
@@ -24,7 +28,10 @@ const Button = styled.button`
   border-radius: 0;
   color: ${(props) => (props.active ? "#fff" : "#333")};
   cursor: pointer;
-  margin: 5px 0;
+  flex-grow: 1;
+  font-size: 1.2 rem;
+  margin: 0;
+  min-width: 100px;
   padding: 5px 10px;
   transition: background-color 0.3s;
 
@@ -36,31 +43,28 @@ const Button = styled.button`
 `;
 
 const EmployeeFilters = ({
-  certifications,
-  certificationFilter,
-  setCertificationFilter,
+  categories,
   departments,
-  departmentFilter,
-  setDepartmentFilter,
-  employees,
+  selectedDepartmentFilter,
+  selectedTrainingFilter,
+  setSelectedTrainingFilter,
+  setSelectedDepartmentFilter,
 }) => {
-  if (employees.length === 0) return <div>No available employees</div>;
-
   return (
     <>
       <FilterContainer>
         <Button
-          active={departmentFilter === "All"}
-          onClick={() => setDepartmentFilter("All")}
+          active={selectedDepartmentFilter === "All"}
+          onClick={() => setSelectedDepartmentFilter("All")}
         >
           {"   "}All{"   "}
         </Button>
         {departments &&
           departments.map((department) => (
             <Button
-              active={departmentFilter === department}
+              active={selectedDepartmentFilter === department}
               key={department}
-              onClick={() => setDepartmentFilter(department)}
+              onClick={() => setSelectedDepartmentFilter(department)}
             >
               {department}
             </Button>
@@ -68,19 +72,19 @@ const EmployeeFilters = ({
       </FilterContainer>
       <FilterContainer>
         <Button
-          active={certificationFilter.value === "All"}
-          onClick={() => setCertificationFilter({ value: "All" })}
+          active={selectedTrainingFilter.value === "all"}
+          onClick={() => setSelectedTrainingFilter({ value: "all" })}
         >
           {"   "}All{"   "}
         </Button>
-        {certifications &&
-          certifications.map((certification) => (
+        {categories &&
+          categories.map((trainingCategory) => (
             <Button
-              active={certificationFilter.value === certification.value}
-              key={certification.value}
-              onClick={() => setCertificationFilter(certification)}
+              active={selectedTrainingFilter.value === trainingCategory.value}
+              key={trainingCategory.value}
+              onClick={() => setSelectedTrainingFilter(trainingCategory)}
             >
-              {certification.text}
+              {trainingCategory.text}
             </Button>
           ))}
       </FilterContainer>

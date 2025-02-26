@@ -17,7 +17,7 @@ import {
   KeyboardDoubleArrowUp,
 } from "@mui/icons-material";
 
-import { checkExpired } from "../utils/dates";
+// import { checkExpired } from "../utils/dates";
 
 const Header = styled.div`
   align-items: center;
@@ -115,16 +115,46 @@ function formatDate(stringDate) {
   return `${year}/${month}/${day}`;
 }
 
-function selectCertificateColor(certDate, today, todayPlusThreeMonths) {
-  const date = new Date(certDate);
-  const almostExpiry = date < todayPlusThreeMonths;
-  const expired = date < today;
+function renderIcon(type, expired) {
+  const colorStyle = expired ? { color: "#F32013" } : { color: "green" };
 
-  return expired
-    ? { color: "#F32013" }
-    : almostExpiry
-    ? { color: "#F0D500" }
-    : { color: "green" };
+  switch (type) {
+    case "fire":
+      return <LocalFireDepartment style={colorStyle} />;
+    case "firstAid":
+      return <LocalHospital style={colorStyle} />;
+    case "forklift":
+      return <DeliveryDining style={colorStyle} />;
+    case "mobileCrane":
+      return <PrecisionManufacturing style={colorStyle} />;
+    case "overheadCrane":
+      return <PrecisionManufacturing style={colorStyle} />;
+    case "siteRep":
+      return <Factory style={colorStyle} />;
+    case "tractor":
+      return <Agriculture style={colorStyle} />;
+    case "workingHeights":
+      return <Paragliding style={colorStyle} />;
+    default:
+      return null;
+  }
+}
+
+function renderTrainings(statutoryTraining) {
+  const trainings = statutoryTraining.map((training) => {
+    const { id, type, text, expiry, expired } = training;
+    return (
+      <div key={`training_${type}_${id}`}>
+        {renderIcon(type, expired)}
+        <CertificationDetail>
+          <div>{text}:</div>
+          <div>{expiry}</div>
+        </CertificationDetail>
+      </div>
+    );
+  });
+
+  return trainings;
 }
 
 const EmployeeRows = ({ employees, selectedEmployee, setSelectedEmployee }) => {
@@ -143,11 +173,11 @@ const EmployeeRows = ({ employees, selectedEmployee, setSelectedEmployee }) => {
   };
 
   employees.sort((a, b) => {
-    if (sort.value === "initials") {
+    if (sort.value === "name") {
       if (sort.direction === "asc") {
-        return a.initials.localeCompare(b.initials);
+        return a.name.localeCompare(b.name);
       } else {
-        return b.initials.localeCompare(a.initials);
+        return b.name.localeCompare(a.name);
       }
     }
 
@@ -159,40 +189,18 @@ const EmployeeRows = ({ employees, selectedEmployee, setSelectedEmployee }) => {
     }
 
     if (sort.value === "status") {
-      const aStatus = checkExpired([
-        a.fire,
-        a.firstAid,
-        a.forklift,
-        a.mobileCrane,
-        a.overheadCrane,
-        a.siteRep,
-        a.tractor,
-        a.workingHeights,
-      ]);
-      const bStatus = checkExpired([
-        b.fire,
-        b.firstAid,
-        b.forklift,
-        b.mobileCrane,
-        b.overheadCrane,
-        b.siteRep,
-        b.tractor,
-        b.workingHeights,
-      ]);
+      const aStatus = a.statutoryTraining.some((training) => training.expired);
+      const bStatus = b.statutoryTraining.some((training) => training.expired);
 
       if (sort.direction === "asc") {
-        if (aStatus === "Valid" && bStatus !== "Valid") return -1;
-        if (aStatus !== "Valid" && bStatus === "Valid") return 1;
-        if (aStatus === "Expiring" && bStatus === "Expired") return -1;
-        if (aStatus === "Expired" && bStatus === "Expiring") return 1;
+        if (aStatus && !bStatus) return -1;
+        if (!aStatus && bStatus) return 1;
         return a.surname.localeCompare(b.surname);
       }
 
       if (sort.direction === "dec") {
-        if (aStatus === "Valid" && bStatus !== "Valid") return 1;
-        if (aStatus !== "Valid" && bStatus === "Valid") return -1;
-        if (aStatus === "Expiring" && bStatus === "Expired") return 1;
-        if (aStatus === "Expired" && bStatus === "Expiring") return -1;
+        if (aStatus && !bStatus) return 1;
+        if (!aStatus && bStatus) return -1;
         return a.surname.localeCompare(b.surname);
       }
     }
@@ -201,13 +209,13 @@ const EmployeeRows = ({ employees, selectedEmployee, setSelectedEmployee }) => {
   return (
     <>
       <Header>
-        <div onClick={() => chooseSort("initials")}>
-          Initials
-          {sort.value !== "initials" && <SwapVert fontSize="sm" />}
-          {sort.value === "initials" && sort.direction === "asc" && (
+        <div onClick={() => chooseSort("name")}>
+          Name
+          {sort.value !== "name" && <SwapVert fontSize="sm" />}
+          {sort.value === "name" && sort.direction === "asc" && (
             <KeyboardDoubleArrowDown fontSize="sm" />
           )}
-          {sort.value === "initials" && sort.direction === "dec" && (
+          {sort.value === "name" && sort.direction === "dec" && (
             <KeyboardDoubleArrowUp fontSize="sm" />
           )}
         </div>
@@ -236,195 +244,44 @@ const EmployeeRows = ({ employees, selectedEmployee, setSelectedEmployee }) => {
       <EmployeeContainer>
         {employees &&
           employees.map((employee) => {
-            const {
-              fire,
-              firstAid,
-              forklift,
-              mobileCrane,
-              overheadCrane,
-              siteRep,
-              tractor,
-              workingHeights,
-            } = employee;
+            const { id, name, surname, clockNumber, statutoryTraining } =
+              employee;
 
-            const expiring = checkExpired([
-              fire,
-              firstAid,
-              forklift,
-              mobileCrane,
-              overheadCrane,
-              siteRep,
-              tractor,
-              workingHeights,
-            ]);
-
-            const today = new Date();
-            const todayPlusThreeMonths = new Date(
-              new Date(today).setMonth(today.getMonth() + 3)
+            const expired = statutoryTraining.some(
+              (training) => training.expired
             );
 
             return (
-              <>
+              <div key={`employee_row_${id}`}>
                 <EmployeeRow
                   key={`${employee.surname}_${employee.clockNumber}`}
                   onClick={() =>
-                    selectedEmployee === employee.id
+                    selectedEmployee === id
                       ? setSelectedEmployee()
-                      : setSelectedEmployee(employee.id)
+                      : setSelectedEmployee(id)
                   }
                 >
                   <StyledArrowForwardIos
-                    active={selectedEmployee === employee.id}
+                    active={selectedEmployee === id}
                     sx={{ fontSize: 10 }}
                   />
-                  <div style={{ minWidth: "50px" }}>{employee.initials}</div>
-                  <div style={{ minWidth: "120px" }}>{employee.surname}</div>
-                  <div style={{ minWidth: "110px" }}>
-                    {employee.clockNumber}
-                  </div>
-                  {expiring === "Expired" && (
+                  <div style={{ minWidth: "50px" }}>{name}</div>
+                  <div style={{ minWidth: "120px" }}>{surname}</div>
+                  <div style={{ minWidth: "110px" }}>{clockNumber}</div>
+                  {expired && (
                     <Error sx={{ fontSize: 30 }} style={{ color: "#F32013" }} />
                   )}
-                  {expiring === "Expiring" && (
-                    <Warning
-                      sx={{ fontSize: 30 }}
-                      style={{ color: "#F0D500" }}
-                    />
-                  )}
-                  {expiring === "Valid" && (
+                  {!expired && (
                     <CheckCircle
                       sx={{ fontSize: 30 }}
                       style={{ color: "green" }}
                     />
                   )}
                 </EmployeeRow>
-                <EmployeeRowContent active={selectedEmployee === employee.id}>
-                  {fire && (
-                    <div>
-                      <LocalFireDepartment
-                        style={selectCertificateColor(
-                          fire,
-                          today,
-                          todayPlusThreeMonths
-                        )}
-                      />
-                      <CertificationDetail>
-                        <div>Fire:</div>
-                        <div>{fire ? formatDate(fire) : ""}</div>
-                      </CertificationDetail>
-                    </div>
-                  )}
-                  {firstAid && (
-                    <div>
-                      <LocalHospital
-                        style={selectCertificateColor(
-                          firstAid,
-                          today,
-                          todayPlusThreeMonths
-                        )}
-                      />
-                      <CertificationDetail>
-                        <div>First Aid:</div>
-                        <div>{firstAid ? formatDate(firstAid) : ""}</div>
-                      </CertificationDetail>
-                    </div>
-                  )}
-                  {forklift && (
-                    <div>
-                      <DeliveryDining
-                        style={selectCertificateColor(
-                          forklift,
-                          today,
-                          todayPlusThreeMonths
-                        )}
-                      />
-                      <CertificationDetail>
-                        <div>Forklift:</div>
-                        <div>{forklift ? formatDate(forklift) : ""}</div>
-                      </CertificationDetail>
-                    </div>
-                  )}
-                  {mobileCrane && (
-                    <div>
-                      <PrecisionManufacturing
-                        style={selectCertificateColor(
-                          mobileCrane,
-                          today,
-                          todayPlusThreeMonths
-                        )}
-                      />
-                      <CertificationDetail>
-                        <div>Mobile Crane:</div>
-                        <div>{mobileCrane ? formatDate(mobileCrane) : ""}</div>
-                      </CertificationDetail>
-                    </div>
-                  )}
-                  {overheadCrane && (
-                    <div>
-                      <PrecisionManufacturing
-                        style={selectCertificateColor(
-                          overheadCrane,
-                          today,
-                          todayPlusThreeMonths
-                        )}
-                      />
-                      <CertificationDetail>
-                        <div>Overhead Crane:</div>
-                        <div>
-                          {overheadCrane ? formatDate(overheadCrane) : ""}
-                        </div>
-                      </CertificationDetail>
-                    </div>
-                  )}
-                  {siteRep && (
-                    <div>
-                      <Factory
-                        style={selectCertificateColor(
-                          siteRep,
-                          today,
-                          todayPlusThreeMonths
-                        )}
-                      />
-                      <CertificationDetail>
-                        <div>Site Rep:</div>
-                        <div>{siteRep ? formatDate(siteRep) : ""}</div>
-                      </CertificationDetail>
-                    </div>
-                  )}
-                  {tractor && (
-                    <div>
-                      <Agriculture
-                        style={selectCertificateColor(
-                          tractor,
-                          today,
-                          todayPlusThreeMonths
-                        )}
-                      />
-                      <CertificationDetail>
-                        <div>Tractor:</div>
-                        <div>{tractor ? formatDate(tractor) : ""}</div>
-                      </CertificationDetail>
-                    </div>
-                  )}
-                  {workingHeights && (
-                    <div>
-                      <Paragliding
-                        style={selectCertificateColor(
-                          workingHeights,
-                          today,
-                          todayPlusThreeMonths
-                        )}
-                      />
-                      <CertificationDetail>
-                        <div>Working@Heights:</div>
-                        <div>
-                          {workingHeights ? formatDate(workingHeights) : ""}
-                        </div>
-                      </CertificationDetail>
-                    </div>
-                  )}
+                <EmployeeRowContent active={selectedEmployee === id}>
+                  {renderTrainings(statutoryTraining)}
                 </EmployeeRowContent>
-              </>
+              </div>
             );
           })}
       </EmployeeContainer>
