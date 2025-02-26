@@ -3,7 +3,7 @@ function getTextFromType(type) {
     ? "Fire"
     : type === "firstAid"
     ? "First Aid"
-    : type === "forkLift"
+    : type === "forklift"
     ? "Forklift"
     : type === "mobileCrane"
     ? "Mobile Crane"

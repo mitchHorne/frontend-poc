@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 import { Tooltip } from "react-tooltip";
-import { Delete } from "@mui/icons-material";
 
 import {
   UploadInput,

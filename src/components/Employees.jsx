@@ -102,18 +102,19 @@ const CertificationDetail = styled.span`
 
   div {
   padding-left: 0;
-    padding-right: 10px;
+  padding-right: 10px;
+  min-width: 120px;
+  }
+
+  div:first-child {
+    width 50px;
   }
 `;
 
-function formatDate(stringDate) {
-  if (stringDate === "Invalid Date") return "Invalid Date";
-  const date = new Date(stringDate);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}/${month}/${day}`;
-}
+const TrainingRow = styled.div`
+  display: flex;
+  padding: 5px 0;
+`;
 
 function renderIcon(type, expired) {
   const colorStyle = expired ? { color: "#F32013" } : { color: "green" };
@@ -144,13 +145,13 @@ function renderTrainings(statutoryTraining) {
   const trainings = statutoryTraining.map((training) => {
     const { id, type, text, expiry, expired } = training;
     return (
-      <div key={`training_${type}_${id}`}>
+      <TrainingRow key={`training_${type}_${id}`}>
         {renderIcon(type, expired)}
         <CertificationDetail>
           <div>{text}:</div>
           <div>{expiry}</div>
         </CertificationDetail>
-      </div>
+      </TrainingRow>
     );
   });
 
